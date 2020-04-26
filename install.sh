@@ -26,13 +26,13 @@ if [ -d "$PYENV_DIR/.pyenv" ]; then
 else
 	git clone https://github.com/pyenv/pyenv.git $PYENV_DIR/.pyenv
 fi
+ln -sf $PYENV_DIR/.pyenv/bin/pyenv $DOT_DIR/bin/pyenv
 
 cat >> $DOTRC <<EOF
 
 
 # PyEnv Setup
 export PYENV_ROOT="$PYENV_DIR/.pyenv"
-export PATH="\$PYENV_ROOT/bin:\$PATH"
 
 if command -v pyenv 1>/dev/null 2>&1; then
   eval "\$(pyenv init -)"
