@@ -51,11 +51,19 @@ EOF
   pyenv install --skip-existing $latest_36
   pyenv install --skip-existing $latest_37
   pyenv install --skip-existing $latest_38
+  
+  mkdir -p $PYENV_DIR/virtualenvs/
+  # Install virtualenv for python-2/3
+  ( pyenv local $latest_27;
+    python -m virtualenv $PYENV_DIR/virtualenvs/nvim_python2;
+    $PYENV_DIR/virtualenvs/nvim_python2/bin/pip install pynvim jedi;
+  )
+  (
+    pyenv local $latest_37;
+    python -m venv $PYENV_DIR/virtualenvs/nvim_python3;
+    $PYENV_DIR/virtualenvs/nvim_python3/bin/pip install pynvim jedi;
+  )
 
-  ( pyenv local $latest_27; pip install --user neovim)
-  ( pyenv local $latest_36; pip install --user neovim)
-  ( pyenv local $latest_37; pip install --user neovim)
-  ( pyenv local $latest_38; pip install --user neovim)
 
 )
 
@@ -65,29 +73,46 @@ EOF
 
 # Install latest neovim appimage
 NEOVIM_DIR=$DOT_DIR/nvim
-mkdir -p $NEOVIM_DIR/{bin,config}
-ln -sf $NEOVIM_DIR/config ~/.config/nvim
+mkdir -p $NEOVIM_DIR/bin
+ln -sf --no-dereference $NEOVIM_DIR ~/.config/nvim
 curl -L -o $NEOVIM_DIR/bin/nvim.appimage https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
 chmod u+x $NEOVIM_DIR/bin/nvim.appimage
 ln -sf $NEOVIM_DIR/bin/nvim.appimage $DOT_DIR/bin/nvim
 
 # Setup VimPlug
-curl -fLo $NEOVIM_DIR/config/autoload/plug.vim --create-dirs \
+curl -fLo $NEOVIM_DIR/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 # Create Configuration
-cat > $NEOVIM_DIR/config/init.vim <<EOF
+cat > $NEOVIM_DIR/init.vim <<EOF
+let g:python_host_prog = '$PYENV_DIR/virtualenvs/nvim_python2/bin/python'
+let g:python3_host_prog = '$PYENV_DIR/virtualenvs/nvim_python3/bin/python'
+
 set nocompatible              " required
 filetype off                  " required
 
 " Specify a directory for plugins
 " - For Neovim: stdpath('data') . '/plugged'
 " - Avoid using standard Vim directory names like 'plugin'
-call plug#begin('$NEOVIM_DIR/config/plugged')
+call plug#begin('$NEOVIM_DIR/plugged')
 $(cat $DOT_DIR/neovim_plugins.txt)
 call plug#end()
+EOF
 
+# Update all plugins
+$DOT_DIR/bin/nvim +'PlugClean --sync' +'PlugInstall --sync' +'PlugUpdate --sync' +qa
+
+# Add the config for nvim
+cat >> $NEOVIM_DIR/init.vim <<EOF
 filetype plugin indent on    " required
+
+:set number relativenumber
+
+:augroup numbertoggle
+:  autocmd!
+:  autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+:  autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
+:augroup END
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Split Window
@@ -118,16 +143,32 @@ nnoremap <space> za
 
 set encoding=utf-8
 
-au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+let g:deoplete#enable_at_startup = 1
 
 au BufNewFile,BufRead *.py
-    \ set tabstop=4
-    \ set softtabstop=4
-    \ set shiftwidth=4
-    \ set textwidth=79
-    \ set expandtab
-    \ set autoindent
-    \ set fileformat=unix
+\ set tabstop=4 |
+\ set softtabstop=4 |
+\ set shiftwidth=4 |
+\ set textwidth=79 |
+\ set expandtab |
+\ set autoindent |
+\ set fileformat=unix
+
+" Display tabs at the beginning of a line in Python mode as bad.
+au BufRead,BufNewFile *.py,*.pyw match BadWhitespace /^\t\+/
+
+" Make trailing whitespace be flagged as bad.
+au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+
+" Use the below highlight group when displaying bad whitespace is desired.
+highlight BadWhitespace ctermbg=red guibg=red
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Terraform Specific Configs
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:terraform_align=1
+let g:terraform_fold_sections=1
+let g:terraform_fmt_on_save=1
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Colors
@@ -135,10 +176,9 @@ au BufNewFile,BufRead *.py
 
 syntax on
 colorscheme onedark
-
+let g:airline_theme='onedark'
 EOF
 
-$DOT_DIR/bin/nvim +'PlugClean --sync' +'PlugInstall --sync' +'PlugUpdate --sync' +qa
-
-
-
+# Copy theme for airline
+mkdir -p ${NEOVIM_DIR}/autoload/airline/themes/
+ln -sf ${NEOVIM_DIR}/plugged/onedark.vim/autoload/airline/themes/onedark.vim ${NEOVIM_DIR}/autoload/airline/themes/onedark.vim

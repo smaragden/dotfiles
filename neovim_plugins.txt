@@ -1,5 +1,8 @@
 " Plugins are included from neovim_plugins.txt
-Plug 'davidhalter/jedi-vim'
 Plug 'tmhedberg/SimpylFold'
 Plug 'vim-scripts/indentpython.vim'
 Plug 'joshdick/onedark.vim'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'zchee/deoplete-jedi'
+Plug 'vim-airline/vim-airline'
+Plug 'hashivim/vim-terraform'
