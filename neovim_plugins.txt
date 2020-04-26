@@ -1,0 +1,5 @@
+" Plugins are included from neovim_plugins.txt
+Plug 'davidhalter/jedi-vim'
+Plug 'tmhedberg/SimpylFold'
+Plug 'vim-scripts/indentpython.vim'
+Plug 'joshdick/onedark.vim'
