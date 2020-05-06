@@ -18,8 +18,33 @@ export PATH
 EOF
 
 #############################################################################################################
+# Install FZF
+#############################################################################################################
+if [ -d "$DOT_DIR/.fzf" ]; then
+	(cd $DOT_DIR/.fzf && git pull)
+else
+	git clone --depth 1 https://github.com/junegunn/fzf.git $DOT_DIR/.fzf
+fi
+$DOT_DIR/.fzf/install --key-bindings --completion --no-update-rc
+ln -sf $DOT_DIR/.fzf/fzf $DOT_DIR/bin/fzf
+cat >> $DOTRC <<EOF
+
+# Setup fzf
+# ---------
+
+# Auto-completion
+# ---------------
+[[ $- == *i* ]] && source "$DOT_DIR/.fzf/shell/completion.bash" 2> /dev/null
+
+# Key bindings
+# ------------
+source "$DOT_DIR/.fzf/shell/key-bindings.bash"
+
+EOF
+
+#############################################################################################################
 # Install PyEnv
-###############################################i##############################################################
+#############################################################################################################
 PYENV_DIR=$DOT_DIR/pyenv
 mkdir -p $PYENV_DIR
 if [ -d "$PYENV_DIR/.pyenv" ]; then
@@ -115,6 +140,24 @@ filetype plugin indent on    " required
 :augroup END
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Navigation
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Learn to not use arrow keys
+nmap <Up>    <Nop>
+nmap <Down>  <Nop>
+nmap <Left>  <Nop>
+nmap <Right> <Nop>
+
+" Pairing Braces
+inoremap <> <><Left>
+inoremap () ()<Left>
+inoremap {} {}<Left>
+inoremap [] []<Left>
+inoremap "" ""<Left>
+inoremap '' ''<Left>
+inoremap `` ``<Left>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Split Window
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 set splitbelow
@@ -177,6 +220,8 @@ let g:terraform_fmt_on_save=1
 syntax on
 colorscheme onedark
 let g:airline_theme='onedark'
+
+let g:airline_powerline_fonts = 1
 EOF
 
 # Copy theme for airline
