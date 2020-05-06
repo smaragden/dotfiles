@@ -100,6 +100,7 @@ EOF
 # Install latest neovim appimage
 NEOVIM_DIR=$DOT_DIR/nvim
 mkdir -p $NEOVIM_DIR/bin
+mkdir -p ~/.config
 ln -sf --no-dereference $NEOVIM_DIR ~/.config/nvim
 curl -L -o $NEOVIM_DIR/bin/nvim.appimage https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
 chmod u+x $NEOVIM_DIR/bin/nvim.appimage
