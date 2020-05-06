@@ -80,6 +80,7 @@ EOF
   mkdir -p $PYENV_DIR/virtualenvs/
   # Install virtualenv for python-2/3
   ( pyenv local $latest_27;
+    pip install --user virtualenv;
     python -m virtualenv $PYENV_DIR/virtualenvs/nvim_python2;
     $PYENV_DIR/virtualenvs/nvim_python2/bin/pip install pynvim jedi;
   )
