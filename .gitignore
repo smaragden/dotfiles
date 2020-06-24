@@ -1,0 +1,6 @@
+.dotfilesrc
+.fzf/
+.python-version
+bin/
+nvim/
+pyenv/

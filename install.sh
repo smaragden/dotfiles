@@ -26,7 +26,7 @@ else
 	git clone --depth 1 https://github.com/junegunn/fzf.git $DOT_DIR/.fzf
 fi
 $DOT_DIR/.fzf/install --key-bindings --completion --no-update-rc
-ln -sf $DOT_DIR/.fzf/fzf $DOT_DIR/bin/fzf
+ln -sf $DOT_DIR/.fzf/bin/fzf $DOT_DIR/bin/fzf
 cat >> $DOTRC <<EOF
 
 # Setup fzf
